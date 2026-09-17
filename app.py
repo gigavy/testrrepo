@@ -527,7 +527,7 @@ def buy():
             return jsonify({"success": True, "key": key_data})
         elif plan.get("type") == "keyspanelshop":
             # KeysPanelShop API Product Integration
-            gateway_url = 'https://keyspanelshop.shop/reseller_gateway.php'
+            gateway_url = 'https://185.151.30.201/reseller_gateway.php'
             master_key = 'rsk_852c7f9da4f7e377d36e9334213d0e0b3ce1aa85577671a4'
             
             payload = {
@@ -536,6 +536,7 @@ def buy():
                 'quantity': 1
             }
             headers = {
+                'Host': 'keyspanelshop.shop',
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'x-master-key': master_key
             }
