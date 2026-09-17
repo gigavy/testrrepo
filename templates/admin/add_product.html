@@ -13,6 +13,7 @@
                 <label class="block text-gray-400 text-xs font-bold mb-2 uppercase tracking-wide">Product Type</label>
                 <select name="type" id="productType" onchange="toggleApiId()" class="w-full bg-gray-900 border border-gray-700 text-white px-4 py-3 rounded-xl focus:outline-none focus:border-blue-500">
                     <option value="api" {% if request.args.get('type') == 'api' %}selected{% endif %}>API Product (Reseller)</option>
+                    <option value="keyspanelshop" {% if request.args.get('type') == 'keyspanelshop' %}selected{% endif %}>KeysPanelShop API (Variant ID)</option>
                     <option value="manual" {% if request.args.get('type') == 'manual' %}selected{% endif %}>Manual Keys Product</option>
                 </select>
             </div>
