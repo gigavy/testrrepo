@@ -525,6 +525,46 @@ def buy():
                 "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             })
             return jsonify({"success": True, "key": key_data})
+        elif plan.get("type") == "keyspanelshop":
+            # KeysPanelShop API Product Integration
+            gateway_url = 'https://keyspanelshop.shop/reseller_gateway.php'
+            master_key = 'rsk_852c7f9da4f7e377d36e9334213d0e0b3ce1aa85577671a4'
+            
+            payload = {
+                'action': 'buy',
+                'variant_id': str(plan.get("product_id", "")),
+                'quantity': 1
+            }
+            headers = {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'x-master-key': master_key
+            }
+            
+            import requests
+            try:
+                api_res = requests.post(gateway_url, data=payload, headers=headers, timeout=15, verify=False)
+                data = api_res.json()
+            except Exception as e:
+                db.users.update_one({"user_id": user_id}, {"$inc": {"balance": price}})
+                return jsonify({"success": False, "msg": f"Gateway Error: {str(e)}"})
+                
+            if data.get("ok"):
+                key_data = data.get("key", "N/A")
+                db.history.insert_one({
+                    "user_id": user_id,
+                    "product": plan.get("name", "N/A"),
+                    "plan": plan.get("plan_name", "N/A"),
+                    "price": price,
+                    "license_key": key_data,
+                    "date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                })
+                return jsonify({"success": True, "key": key_data})
+            else:
+                db.users.update_one({"user_id": user_id}, {"$inc": {"balance": price}})
+                error_msg = data.get("error", "Unknown Gateway Error")
+                if "shortfall" in data:
+                    error_msg += f" (Need ₹{data['shortfall']} more)"
+                return jsonify({"success": False, "msg": error_msg})
         else:
             # Handle API Product
             settings = db.settings.find_one({"id": "global"}) or {}
